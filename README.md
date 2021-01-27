@@ -1,2 +1,2 @@
-# INF143A
+# Cryptography
 homework \ mandatory
