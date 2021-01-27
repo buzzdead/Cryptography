@@ -1,0 +1,2 @@
+Basically because every line of a string ends with a "newline" symbol, which is 0a. 0x0a.
+To prevent this from being written to memory you can use printf "hello world" | xxd -p.
