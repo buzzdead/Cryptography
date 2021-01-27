@@ -23,7 +23,7 @@ for i in range(0,len(PassPhrase) // numbytes):
 FILEIN = open(sys.argv[1])
 encrypted_bv = BitVector( hexstring = FILEIN.read() )
 
-# Goes through all possible keys and performs decyrption until correct key is found
+# Goes through all possible keys and performs decryption until correct key is found
 for permutation in range(2**16):
     key_bv = BitVector(intVal=permutation, size=16)
 
