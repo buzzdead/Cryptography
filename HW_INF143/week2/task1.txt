@@ -1,0 +1,17 @@
+Assume an OTP-like encryption with a short key of 128 bit. This
+key is then being used periodically to encrypt large volumes of data.
+
+• Is this scheme breakable with a ciphertext-only attack?
+  With a ciphertext-only attack you would have no idea what the text actually translates to, and the
+  only thing you might be able to chase is the frequency. However, OPT is strictly uniform and doing so
+  would be a goose chase.
+
+• Is this scheme breakable with a known plaintext attacks? What about its
+  resistance against a chosen plaintext attack?
+  With a known plaintext attack you would only know the plaintext and not its relation to the cipher key.
+  You might be able to find some pattern that makes sense with respect to how a one-time-pad works, but not
+  knowing more about the pattern you will have no chance at breaking it.
+
+  With a chosen plaintext attack and a small key being used periodically you will have a greater chance at
+  breaking the cipher. However, to actually get somewhere you would have to know where the key begins and where
+  it ends (With respect to the plaintext\ciphertext).

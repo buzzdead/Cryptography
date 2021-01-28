@@ -1,0 +1,6 @@
+Why a brute-force attack does not work on a small message of 5 ascii characters
+revolves around why the cipher is not breakable against known plaintext attacks.
+It is uniform and there is no practical way of breaking it even if you might
+be able to translate it to english words. You might be able to get multiple keys
+that translates those 5 ascii characters to different words and have no clue as
+to which one is the correct one to use.

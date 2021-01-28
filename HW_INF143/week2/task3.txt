@@ -1,0 +1,27 @@
+• Assume n = 3, f(x0, x1, x2) = x0 +x2. If the initial vector is (011), what
+is the output sequence? If the initial vector is (100), what is the output
+sequence? What’s the relation between the two sequences?
+
+    IV (011)
+
+    0111010011101001
+
+    IV (100)
+
+    100111010011101001
+
+    The relation is that the second one is a "continuation" of the first one, that is if you look
+    past the first 2 bits in the second sequence then they are exactly the same.
+
+
+• Assume n = 3, f(x0, x1, x2) = x0 + x1. Try all 8 initial vectors s0s1s2,
+and compare the output sequences.
+
+IV (000) 0000000000,
+IV (001) 0010111001
+IV (011) 0111001011
+IV (111) 1110010111
+IV (010) 0101110010
+IV (100) 1001011100
+IV (110) 1100101110
+IV (100) 1001011100
