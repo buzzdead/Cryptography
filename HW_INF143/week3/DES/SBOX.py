@@ -45,12 +45,14 @@ s_boxes[7] = [[13, 2, 8, 4, 6, 15, 11, 1, 10, 9, 3, 14, 5, 0, 12, 7],
               [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11]]
 
 
+# Finds the element in the given s-box.
 def s(box, bv):
     row = bv[0] * 2 + bv[-1]
     col = sum([2 ** (4 - i) * bv[i] for i in range(1, 5)])
     return s_boxes[box][row][col]
 
 
+# Goes through all the blocks of 6 bits and transforms them to 4 bits.
 def s_permute(bv):
     s_box_nr = 0
     s_permutation = BitVector(size=0)

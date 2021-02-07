@@ -37,24 +37,35 @@ f_permutation = [
     18, 12, 29, 5, 21, 10, 3, 24
 ]
 
-if __name__ == "__main__":
+
+def start_des():
     L = []
     R = []
+    mode = input("Type 0 for decryption, 1 for encryption: ")
+    key_text = input("Enter key in hexadecimal: ")
+    plaintext = input("Enter text to be encrypted or decrypted in hexadecimal: ")
 
-    m = BitVector(hexstring="02468aceeca86420")
-    i_key = BitVector(hexstring="0f1571c947d9e859")
-
-    ip = m.permute(initial_permutation)
-    [LIP, RIP] = ip.divide_into_two()
-
-    encryption_key = keys.get_encryption_key(i_key)
+    # Initializes the vectors and generates the keys.
+    ptxt_bv = BitVector(hexstring=plaintext)  # The hexadecimal text to be encrypted\decrypted.
+    key_bv = BitVector(hexstring=key_text)  # The key used for encryption\decryption.
+    encryption_key = keys.get_encryption_key(key_bv)
     round_keys = keys.generate_round_keys(encryption_key)
 
+    # Initial permutation and puts the original left and right half into a list respectively.
+    ip = ptxt_bv.permute(initial_permutation)
+    [LIP, RIP] = ip.divide_into_two()
     R0 = BitVector(bitstring=RIP)
     L0 = BitVector(bitstring=LIP)
     L.append(L0)
     R.append(R0)
 
+    if mode == "0":
+        round_keys.reverse()
+    run_des(round_keys, R, L)
+
+
+# Goes through the DES operations once a the keys and the message has been initialized.
+def run_des(round_keys, R, L):
     for i in range(16):
         key = round_keys[i]
         L.append(R[i])
@@ -67,3 +78,7 @@ if __name__ == "__main__":
     final = R[16] + L[16]
     final = final.permute(initial_permutation_inverse)
     print(final.getHexStringFromBitVector())
+
+
+if __name__ == "__main__":
+    start_des()

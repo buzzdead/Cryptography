@@ -25,10 +25,10 @@ def generate_round_keys(encryption_key):
         shift = shifts_for_round_key_gen[round_count]
         LKey << shift
         RKey << shift
-        asdfl = BitVector(bitstring=LKey)
-        asdfr = BitVector(bitstring=RKey)
-        asdf = asdfl + asdfr
-        key = asdf
+        new_LKey = BitVector(bitstring=LKey)
+        new_RKey = BitVector(bitstring=RKey)
+        new_key = new_LKey + new_RKey  # Needed to cast LKey and RKey to new bitvectors to make addition work.
+        key = new_key
         round_key = key.permute(key_permutation_2)
         round_keys.append(round_key)
     return round_keys
