@@ -1,0 +1,3 @@
+Well in a sense it is reversible, but practically you are just using the same function again
+with the xor operation and recover the past left hand side Li = Ri+1 xor F(Ri, RKi)
+This is because A = B xor C implies that B = A xor C

@@ -1,0 +1,2 @@
+With such a small block size it is possible to crack it with just statistical character frequency.
+Solution would be to have a large key size and it seems unpractical.
