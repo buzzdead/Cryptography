@@ -38,10 +38,37 @@ f_permutation = [
 ]
 
 
+def get_padding(ptxt_bv):
+    padding = ''
+    length = 8 - (len(ptxt_bv) // 8) % 8
+    if length > 0:
+        for j in range(length):
+            padding += "0{}".format(str(length))
+    return padding
+
+
+def reorder_plaintext(output_text):
+    new_output_text = ""
+    for k in range(len(output_text), 0, -16):
+        new_output_text += output_text[k - 16:k]
+
+    for j in range(1, 8):
+        possible = "0{}".format(j)
+        if new_output_text[-j * 2: len(new_output_text)] == possible * j:
+            new_output_text = new_output_text[0:-j * 2]
+    return new_output_text
+
+
 def start_des():
-    L = []
-    R = []
+    L = []  # List for storing the left side bits.
+    R = []  # List for storing the right side bits.
     mode = input("Type 0 for decryption, 1 for encryption: ")
+    decrypt = False
+    encrypt = False
+    if mode == "0":
+        decrypt = True
+    else:
+        encrypt = True
     key_text = input("Enter key in hexadecimal: ")
     plaintext = input("Enter text to be encrypted or decrypted in hexadecimal: ")
 
@@ -50,22 +77,73 @@ def start_des():
     key_bv = BitVector(hexstring=key_text)  # The key used for encryption\decryption.
     encryption_key = keys.get_encryption_key(key_bv)
     round_keys = keys.generate_round_keys(encryption_key)
+    initial_vector = "7A65B3757269A47E"
+    iv_bv = BitVector(hexstring=initial_vector)
+    output_text = ""
 
-    # Initial permutation and puts the original left and right half into a list respectively.
-    ip = ptxt_bv.permute(initial_permutation)
+    if decrypt:
+        round_keys.reverse()
+
+    # CBC
+    # If the text is a multiplication of 64 bits then padding is skipped.
+    if len(ptxt_bv) % 64 != 0:
+        padding = BitVector(hexstring=get_padding(ptxt_bv))
+        ptxt_bv += padding
+    total_bits = len(ptxt_bv)
+    one_block = (total_bits == 64)
+
+    # Goes through each block of 64 bits.
+    for bit_pos in range(0, total_bits, 64):
+        iv = BitVector(hexstring=iv)  # Reset iv value to the new ciphertext \ iv.
+
+        # Takes each block starting from the last one when decrypting.
+        if decrypt:
+            bit_start = total_bits - bit_pos - 64
+            bit_end = total_bits - bit_pos
+            input_text = ptxt_bv[bit_start:bit_end]
+        else:
+            input_text = ptxt_bv[bit_pos:bit_pos + 64]
+
+        # Plaintext xor IV.
+        if encrypt and not one_block:
+            input_text = input_text.__xor__(iv)
+
+        ip = input_text.permute(initial_permutation)
+        old_iv = iv.deep_copy()  # This will be the xor combination of an iv with a plaintext.
+        iv = run_des(round_keys, R, L, ip)
+
+        if decrypt and not one_block:
+            last_block = (bit_pos == total_bits - 64)
+
+            if bit_pos > 0:
+                # Takes the new cipher text and xor it with the old block.
+                plaintext_block = input_text.__xor__(old_iv)
+                output_text += plaintext_block.getHexStringFromBitVector()
+
+            # If it is the last block then it is xor'ed with the initial vector.
+            if last_block:
+                cipher_block = BitVector(hexstring=iv)
+                original_iv = BitVector(hexstring="7A65B3757269A47E")
+                plaintext_block = cipher_block.__xor__(original_iv)
+                output_text += plaintext_block.getHexStringFromBitVector()
+        else:
+            output_text += iv
+        L.clear()
+        R.clear()
+
+    if decrypt:
+        output_text = reorder_plaintext(output_text)
+    print(output_text)
+
+
+# Goes through the DES operations once a the keys and the message has been initialized.
+def run_des(round_keys, R, L, ip):
     [LIP, RIP] = ip.divide_into_two()
     R0 = BitVector(bitstring=RIP)
     L0 = BitVector(bitstring=LIP)
     L.append(L0)
     R.append(R0)
 
-    if mode == "0":
-        round_keys.reverse()
-    run_des(round_keys, R, L)
-
-
-# Goes through the DES operations once a the keys and the message has been initialized.
-def run_des(round_keys, R, L):
     for i in range(16):
         key = round_keys[i]
         L.append(R[i])
@@ -77,7 +155,7 @@ def run_des(round_keys, R, L):
         R.append(right)
     final = R[16] + L[16]
     final = final.permute(initial_permutation_inverse)
-    print(final.getHexStringFromBitVector())
+    return final
 
 
 if __name__ == "__main__":
