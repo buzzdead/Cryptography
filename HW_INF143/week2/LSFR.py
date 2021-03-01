@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from functools import reduce
-from operator import xor
+from operator import xor, and_
 
 from BitVector import BitVector
 
@@ -12,12 +12,12 @@ def run_sequence(register):
         print("Step {}\n{}".format(i + 1, register))
     print(register.sequence)
 
-def run_all_sequences(reg, tap):
+def run_all_sequences(reg, tap, multitaps):
     all_seq = [[0] * (2**reg)] * (2**reg)
     for i in range(2**reg):
         bv = BitVector(intVal=i, size=reg)
         print(bv)
-        register = LFSR(fill=[k for k in bv], taps=tap)
+        register = LFSR(fill=[k for k in bv], taps=tap, multitaps=multitaps)
         run_sequence(register)
         all_seq[i] = register.sequence
     for seq in all_seq:
@@ -33,17 +33,24 @@ class LFSR():
        i.e. read from right to left. Example: taps = [3] on a nine-bit register
        is located on (9-1)-3 = 5th position in the array. '''
 
-    def __init__(self, fill, taps):
+    def __init__(self, fill, taps, multitaps):
         self.sequence = fill.copy()
         self.register = fill
         self.taps = taps
+        self.multitaps = multitaps
 
     def step(self):
         '''Advance the register by one step. All bits are shifted left by 1 and new bit
         is appended to the right tail. The new bit is a result of xor of the leaving (leftmost) bit
         and bits located at taps before the shift.'''
+
         new_bit = reduce(xor, [self.register[(len(self.register) - 1) - t] for t in
                                self.taps])  # binary number, read from right to left
+        new_bit2 = reduce(and_, [self.register[(len(self.register) - 1) - t] for t in
+                               self.multitaps])  # binary number, read from right to left
+
+        new_bit = new_bit ^ new_bit2
+
         del self.register[0]
         self.register.append(new_bit)
         self.sequence.append(new_bit)
@@ -63,13 +70,13 @@ class LFSR():
 
 def main():
     """A demo of the LFSR's functionality."""
-
     # create a new register with initial state 01101000010 and tap at position 8
-    register = LFSR(fill=[1, 0, 0], taps=[0, 1])
+    register = LFSR(fill=[0, 0, 0, 0, 1], taps=[0], multitaps=[1, 2])
     #run_sequence(register)
-    reg = 3
-    tap = [2,1]
-    run_all_sequences(reg, tap)
+    reg = 5
+    tap = [0]
+    multitaps = [1, 2]
+    run_all_sequences(reg, tap, multitaps)
 
 
 if __name__ == '__main__':
