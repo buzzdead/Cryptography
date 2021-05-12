@@ -1,4 +1,4 @@
-from RsaUtil import *
+from HW_INF143.mandatory3.RsaUtil import *
 
 p, a, d = 59, 3, 23
 x = 17

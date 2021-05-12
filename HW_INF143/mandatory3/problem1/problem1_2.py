@@ -1,4 +1,4 @@
-from RsaUtil import *
+from HW_INF143.mandatory3.RsaUtil import *
 
 p, a = 59, 3
 rsa = RsaUtil(p, a, None)
