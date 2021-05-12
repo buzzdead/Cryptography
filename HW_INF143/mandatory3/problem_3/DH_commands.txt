@@ -1,0 +1,14 @@
+// I wrote it all in one folder to begin with, but in the screenshots I wrote the files directly to their respective folders.
+
+openssl dhparam -out dh_param.pem 2048
+openssl genpkey -paramfile dh_param.pem -out dhkey_alice.pem -aes-128-cbc -pass pass:INF143A
+openssl pkey -in dhkey_alice.pem -pubout -out dhpub_alice.pem -passin pass:INF143A
+openssl pkeyutl -derive -inkey dhkey_alice.pem -passin pass:INF143A -peerkey dhpub_bob.pem -out shared_key1.bin
+
+openssl genpkey -paramfile dh_param.pem -out dhkey_bob.pem -aes-128-cbc -pass pass:AppliedCrypto
+openssl pkey -in dhkey_bob.pem -pubout -out dhpub_bob.pem -passin pass:AppliedCrypto
+openssl pkeyutl -derive -inkey dhkey_bob.pem -passin pass:AppliedCrypto -peerkey dhpub_alice.pem -out shared_key2.bin
+
+// Encrypt / Decrypt
+openssl enc -aes-256-ctr -salt -pbkdf2 -iter 50000 -pass file:shared_key1.bin -in text.txt -out ciphertext.txt
+openssl enc -d -aes-256-ctr -salt -pbkdf2 -iter 50000 -pass file:shared_key2.bin -in ciphertext.txt

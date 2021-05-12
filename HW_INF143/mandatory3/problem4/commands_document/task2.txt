@@ -1,0 +1,22 @@
+openssl dsaparam -out dsa_param.pem 3072
+openssl gendsa -des3 -out mykey.pem -passout pass:1234 dsa_param.pem
+
+openssl genrsa -out CA.pem 3072
+openssl req -new -key CA.pem -out CA.csr
+
+// create a self-signed X509 certificate for the CA
+openssl x509 -req -in CA.csr -signkey CA.pem -days 300 -out CA.crt
+
+
+// This is just to make the CA.conf file work
+mkdir ca.db.certs
+touch ca.db.index
+echo "1234" > ca.db.serial
+
+// Issuing certificate from CA
+openssl req -new -key mykey.pem -passin pass:1234 -out myreq.pem
+openssl ca -config CA.conf -out dnb.crt -infiles myreq.pem
+
+// Verify
+openssl verify -verbose -CAfile CA.crt dnb.crt
+
